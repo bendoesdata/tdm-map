@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="project-map-container">
     <label for="county-select">Zoom to County:</label>
     <select id="county-select" v-model="selectedCounty" @change="zoomToCounty">
       <option value="">All Counties</option>
@@ -20,10 +20,15 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { defineEmits } from 'vue';
 import L from 'leaflet';
 import Papa from 'papaparse';
+// import USlideover from Nuxt
 
-const csvUrl = '/data/tdm_walk_score.csv'; // Adjust path if needed
+const emit = defineEmits(['marker-click']);
+
+
+const csvUrl = '/data/tdm-geo-clean-20250911.csv'; // Adjust path if needed
 
 const map = ref(null);
 const markers = ref([]);
@@ -68,7 +73,9 @@ onMounted(() => {
   Papa.parse(csvUrl, {
     download: true,
     header: true,
+    delimiter: ",", // force comma as delimiter
     complete: (results) => {
+      console.log(results);
       projects.value = results.data.filter(row => row.LAT && row.LON);
       counties.value = [...new Set(projects.value.map(p => p.COUNTY.trim()))].sort();
 
@@ -104,12 +111,24 @@ onMounted(() => {
         }).addTo(map.value);
 
         marker.bindPopup(`
-          <strong>${project['LOCATION OF PROJECT FOR TEXT'] || project['ADDRESS OF PROJECT TO MAP']}</strong><br>
-          <em>${project['DESCRIPTION (sidewalk, bike lane, length, etc)']}</em><br>
           <b>Type:</b> ${projectNumberToName[project['CODE FOR COLOR']]}<br>
+          <em>${project['DESCRIPTION (sidewalk, bike lane, length, etc)']}</em><br>
           <b>Completed in:</b> ${project['YEAR COMPLETED'] || 'N/A'}<br>
-          <b>Total cost:</b> $${project['TOTAL COST (where available)'] || 'N/A'}<br>
         `);
+
+        // Show popup on hover
+        marker.on('mouseover', function () {
+          marker.openPopup();
+        });
+        marker.on('mouseout', function () {
+          marker.closePopup();
+        });
+
+        // Still emit project data on click
+        marker.on('click', () => {
+          emit('marker-click', project);
+        });
+
         return marker;
       });
     }
@@ -125,21 +144,44 @@ onMounted(() => {
     font-size: 1em
 }
 
- .legend-overlay {
-   position: absolute;
-   top: 30%;
-   right: 100px;
-   z-index: 1000;
-   background: rgba(249, 249, 249, 0.95);
-   border: 1px solid #ddd;
-   border-radius: 8px;
-   padding: 1em;
-   max-width: 240px;
-   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
- }
- .legend-overlay h3 {
+.legend-overlay {
+  position: absolute;
+  top: 80px;
+  right: 40px;
+  z-index: 1000;
+  background: rgba(249, 249, 249, 0.95);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1em;
+  max-width: 240px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* Ensure parent div is positioned relative */
+div {
+  position: relative;
+} 
+
+.project-map-container {
+  margin: 20px;
+}
+.legend-overlay h3 {
    margin-top: 0;
    font-size: 1.1em;
    margin-bottom: 0.5em;
  }
+@media (max-width: 600px) {
+  .project-map-container {
+  margin: 10px;
+}
+  .legend-overlay {
+    top: auto;
+    bottom: 20px;
+    right: 20px;
+    left: 20px;
+    max-width: none;
+    font-size: 0.8em;
+  }
+}
+ 
 </style>
