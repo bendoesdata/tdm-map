@@ -1,5 +1,9 @@
 <template>
   <div class="project-map-container">
+    <label style="margin-left:1em;">
+      <input type="checkbox" v-model="showTransitLayer" @change="toggleTransitLayer" />
+      Show Public Transit Layer
+    </label>
     <label for="county-select">Zoom to County:</label>
     <select id="county-select" v-model="selectedCounty" @change="zoomToCounty">
       <option value="">All Counties</option>
@@ -19,6 +23,10 @@
 </template>
 
 <script setup>
+import { onUnmounted } from 'vue';
+const showTransitLayer = ref(false);
+let transitLayer = null;
+let transitGeojson = null;
 import { ref, onMounted } from 'vue';
 import { defineEmits } from 'vue';
 import L from 'leaflet';
@@ -34,6 +42,71 @@ const map = ref(null);
 const markers = ref([]);
 const counties = ref([]);
 const selectedCounty = ref('');
+
+
+function toggleTransitLayer() {
+  console.log('toggleTransitLayer called, checked:', showTransitLayer.value);
+  if (showTransitLayer.value) {
+    addTransitLayer();
+  } else {
+    removeTransitLayer();
+  }
+}
+
+function addTransitLayer() {
+  if (!map.value || !transitGeojson) return;
+  if (transitLayer) {
+    map.value.removeLayer(transitLayer);
+  }
+  // Deep clone geojson to avoid mutating original
+  const geojsonCopy = JSON.parse(JSON.stringify(transitGeojson));
+
+  // Helper to check and fix coordinate order
+  function fixCoords(coords) {
+    // If array of arrays (MultiLineString or Polygon)
+    if (Array.isArray(coords[0])) {
+      return coords.map(fixCoords);
+    }
+    // If single coordinate pair
+    if (coords.length === 2 && Math.abs(coords[0]) > Math.abs(coords[1])) {
+      // Likely [lon, lat], do nothing
+      return coords;
+    } else if (coords.length === 2) {
+      // If [lat, lon], swap
+      return [coords[1], coords[0]];
+    }
+    return coords;
+  }
+
+  geojsonCopy.features.forEach(feature => {
+    if (feature.geometry && feature.geometry.coordinates) {
+      feature.geometry.coordinates = fixCoords(feature.geometry.coordinates);
+    }
+  });
+
+  transitLayer = L.geoJSON(geojsonCopy, {
+    style: feature => ({
+      color: `#${feature.properties.route_color || '2c7bb6'}`,
+      weight: 2,
+      opacity: 0.7
+    }),
+    onEachFeature: function (feature, layer) {
+      if (feature.properties && feature.properties.route_long_name) {
+        layer.bindPopup(`<b>Transit Route:</b> ${feature.properties.route_long_name}`);
+      }
+    }
+  });
+
+  transitLayer.addTo(map.value);
+  transitLayer.bringToBack();
+}
+
+function removeTransitLayer() {
+  if (map.value && transitLayer) {
+    map.value.removeLayer(transitLayer);
+    transitLayer = null;
+  }
+}
 
 // dict to translate project number to name
 const projectNumberToName = {
@@ -75,7 +148,6 @@ onMounted(() => {
     header: true,
     delimiter: ",", // force comma as delimiter
     complete: (results) => {
-      console.log(results);
       projects.value = results.data.filter(row => row.LAT && row.LON);
       counties.value = [...new Set(projects.value.map(p => p.COUNTY.trim()))].sort();
 
@@ -95,6 +167,17 @@ onMounted(() => {
       L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '© OpenStreetMap contributors © CARTO',
       }).addTo(map.value);
+
+      // Add transit geojson layer (initially hidden)
+      fetch('/data/vcgi-public-transit.geojson')
+        .then(res => res.json())
+        .then(geojson => {
+          console.log('Fetched transit geojson:', geojson);
+          transitGeojson = geojson;
+          if (showTransitLayer.value) {
+            addTransitLayer();
+          }
+        });
 
       // Add markers with color styling
       markers.value = projects.value.map(project => {
@@ -133,6 +216,13 @@ onMounted(() => {
       });
     }
   });
+// End of onMounted
+
+
+
+onUnmounted(() => {
+  removeTransitLayer();
+});
 });
 </script>
 
