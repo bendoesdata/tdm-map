@@ -1,14 +1,20 @@
 <template>
   <div class="project-map-container">
-    <label style="margin-left:1em;">
-      <input type="checkbox" v-model="showTransitLayer" @change="toggleTransitLayer" />
-      Show Public Transit Layer
-    </label>
+    <div style="display: inline; margin-right: 10px; border-right: solid 2px #bbb; padding-right: 30px;">
     <label for="county-select">Zoom to County:</label>
     <select id="county-select" v-model="selectedCounty" @change="zoomToCounty">
       <option value="">All Counties</option>
       <option v-for="county in counties" :key="county" :value="county">{{ county }}</option>
     </select>
+    </div>
+    <label style="margin-left:1em;">
+      <input type="checkbox" v-model="showTransitLayer" @change="toggleTransitLayer" />
+      Show Public Transit Layer
+    </label>
+    <label style="margin-left:1em;">
+      <input type="checkbox" v-model="showPopChoropleth" @change="togglePopChoropleth" />
+      Show Population Choropleth
+    </label>
     <div id="map" style="height: 600px; margin-top: 1em; position: relative;"></div>
     <div class="legend-overlay">
       <h3>Project Type Legend</h3>
@@ -23,6 +29,98 @@
 </template>
 
 <script setup>
+const showPopChoropleth = ref(false);
+let popChoroplethLayer = null;
+let popChoroplethGeojson = null;
+let popByTract = null;
+
+function getColorForPop(value, min, max) {
+  // White to dark green
+  if (value == null) return '#fff';
+  const percent = (value - min) / (max - min);
+  // interpolate from white (255,255,255) to dark green (0,80,0)
+  const r = Math.round(255 * (1 - percent));
+  const g = Math.round(255 * (1 - percent) + 80 * percent);
+  const b = Math.round(255 * (1 - percent));
+  return `rgb(${r},${g},${r})`;
+}
+
+async function addPopChoroplethLayer() {
+  if (popChoroplethLayer) {
+    map.value.removeLayer(popChoroplethLayer);
+    popChoroplethLayer = null;
+  }
+  // Fetch and parse data if not already loaded
+  if (!popChoroplethGeojson) {
+    const geojsonResp = await fetch('/data/vt-census-tract.geojson');
+    popChoroplethGeojson = await geojsonResp.json();
+  }
+  if (!popByTract) {
+    await new Promise((resolve) => {
+      Papa.parse('/data/vt-pop-by-census-tract.csv', {
+        download: true,
+        header: true,
+        complete: (results) => {
+          popByTract = {};
+          results.data.forEach(row => {
+            // Remove geoId/ prefix
+            const id = (row['Entity DCID'] || '').replace('geoId/', '');
+            popByTract[id] = parseInt(row['Variable observation value'], 10);
+          });
+          resolve();
+        }
+      });
+    });
+  }
+  // Find min/max for color scale
+  const popVals = Object.values(popByTract).filter(v => !isNaN(v));
+  const minPop = Math.min(...popVals);
+  const maxPop = Math.max(...popVals);
+
+  // Attach population to geojson features
+  popChoroplethGeojson.features.forEach(f => {
+    const tractId = (f.properties.GEOID || f.properties.geoid || f.properties.geoid10 || '').toString();
+    f.properties._pop = popByTract[tractId] || null;
+  });
+
+  popChoroplethLayer = L.geoJSON(popChoroplethGeojson, {
+    style: feature => ({
+      fillColor: getColorForPop(feature.properties._pop, minPop, maxPop),
+      weight: 1,
+      opacity: 1,
+      color: '#888',
+      fillOpacity: 0.7
+    }),
+    onEachFeature: function (feature, layer) {
+      const pop = feature.properties._pop != null ? feature.properties._pop.toLocaleString() : null;
+      layer.bindPopup(`<b>Census Tract:</b> ${feature.properties["County_Name"]}<br><b>Population:</b> ${pop != null ? pop : 'N/A'}`);
+    }
+  });
+  popChoroplethLayer.addTo(map.value);
+  // Always send choropleth to the very back
+  popChoroplethLayer.bringToBack();
+  // If transit layer is present, bring it above choropleth
+  if (transitLayer) {
+    transitLayer.bringToFront();
+    transitLayer.bringToBack(); // ensures it's above choropleth but below markers
+  }
+  // Markers will always be on top since they're added as L.marker
+}
+
+function removePopChoroplethLayer() {
+  if (map.value && popChoroplethLayer) {
+    map.value.removeLayer(popChoroplethLayer);
+    popChoroplethLayer = null;
+  }
+}
+
+function togglePopChoropleth() {
+  if (showPopChoropleth.value) {
+    addPopChoroplethLayer();
+  } else {
+    removePopChoroplethLayer();
+  }
+}
 import { onUnmounted } from 'vue';
 const showTransitLayer = ref(false);
 let transitLayer = null;
@@ -98,7 +196,13 @@ function addTransitLayer() {
   });
 
   transitLayer.addTo(map.value);
-  transitLayer.bringToBack();
+  // Bring transit above choropleth but below markers
+  if (popChoroplethLayer) {
+    transitLayer.bringToFront();
+    popChoroplethLayer.bringToBack();
+  } else {
+    transitLayer.bringToBack();
+  }
 }
 
 function removeTransitLayer() {
@@ -222,6 +326,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   removeTransitLayer();
+  removePopChoroplethLayer();
 });
 });
 </script>
@@ -272,6 +377,14 @@ div {
     max-width: none;
     font-size: 0.8em;
   }
+}
+
+/* make checkboxes larger */
+input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  margin-right: 0.25em;
 }
  
 </style>
