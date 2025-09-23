@@ -116,9 +116,17 @@ select {
     margin-bottom: 1em;
 }
 
+.intro-text {
+  flex: 1 1 70%;
+}
+
 /* for intro-section class, create media query to stack flex column on small screens */
 @media (max-width: 800px) {
     .intro-section {
         flex-direction: column;
+    }
+
+    .intro-text {
+        flex: 1 1 100%;
     }
 }
