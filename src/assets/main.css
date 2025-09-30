@@ -47,10 +47,14 @@ p, h1, h2, h3, h4, h5, h6 {
 
 /* 9. Improve line wrapping */
 p {
-  text-wrap: pretty;
+  padding: 12px
 }
 h1, h2, h3, h4, h5, h6 {
   text-wrap: balance;
+}
+
+h2, h3 {
+  padding: 12px
 }
 
 /*
@@ -90,6 +94,15 @@ button[aria-label="Close"] {
     object-fit: cover;
 }
 
+.credits {
+    font-size: 0.875rem;
+    color: #666;
+    margin-top: 1em;
+    text-align: center;
+    margin-bottom: 30px;
+    margin-top: 20px
+}
+
 .link-list {
     list-style-type: disc;
     padding-left: 20px;
@@ -114,6 +127,13 @@ select {
     border: 1px solid #ccc;
     border-radius: 4px;
     margin-bottom: 1em;
+}
+
+.caption {
+    font-size: 0.875rem;
+    color: #666;
+    margin-top: 0.25em;
+    font-style: italic;
 }
 
 .intro-text {

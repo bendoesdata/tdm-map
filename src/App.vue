@@ -52,11 +52,53 @@ const caseStudies = [
 
 <template id="app">
   <UApp>
-    <nav style="margin-bottom: 1em;">
-      <router-link to="/">Home</router-link>
-      |
-      <router-link to="/case-studies">Case Studies</router-link>
-    </nav>
+    <div class="header-bar">
+      <h1>Transit Demand Management</h1>
+      <nav>
+        <router-link to="/">Home</router-link>
+        |
+        <router-link to="/case-studies">Case Studies</router-link>
+        |
+        <router-link to="/about">About</router-link>
+      </nav>
+    </div>
     <router-view />
   </UApp>
 </template>
+
+<style scoped>
+.header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5em;
+}
+h1 {
+  margin: 0;
+  font-size: 2em;
+  font-weight: 700;
+}
+nav {
+  text-align: right;
+}
+nav a {
+  margin: 0 0.5em;
+  text-decoration: none;
+  color: #065d00;
+}
+@media (max-width: 600px) {
+  .header-bar {
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 0.5em;
+  }
+  nav {
+    text-align: center;
+    width: 100%;
+  }
+  h1 {
+    text-align: center;
+    font-size: 1.3em;
+  }
+}
+</style>

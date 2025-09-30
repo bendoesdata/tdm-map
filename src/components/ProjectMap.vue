@@ -134,7 +134,7 @@ import Papa from 'papaparse';
 const emit = defineEmits(['marker-click']);
 
 
-const csvUrl = '/data/tdm-geo-clean-20250911.csv'; // Adjust path if needed
+const csvUrl = '/data/tdm-geo-clean-photos-20250923.csv'; // Adjust path if needed
 
 const map = ref(null);
 const markers = ref([]);

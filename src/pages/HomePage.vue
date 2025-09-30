@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h1>Transit Demand Management</h1>
     <div class="flex items-start gap-4 intro-section" style="width: 100%;">
       <div class="intro-text">
         <div style="margin-top: 20px">
@@ -32,12 +31,22 @@
       <template #body>
         <div>
           <img
-            src=""
+            v-if="selectedProject && selectedProject.photo"
+            :src="'/images/' + selectedProject.photo + '.jpg'"
             alt="Project Image"
-            class="img-placeholder"
+            class="project-image"
           />
+          <span v-if="selectedProject['photo credit']" class="caption">{{ 'Photo courtesty of ' + (selectedProject['photo credit'] ? selectedProject['photo credit'] : '') }}</span>
         </div>
+        <br></br>
         <div v-if="selectedProject">
+          <div>
+            <h3>{{ selectedProject['LOCATION OF PROJECT'] ? selectedProject['LOCATION OF PROJECT'] : 'Not available' }}</h3>
+            <p>{{ selectedProject['DESCRIPTION (sidewalk, bike lane, length, etc)'] ? selectedProject['DESCRIPTION (sidewalk, bike lane, length, etc)'] : 'Not available' }}</p>
+          </div>
+          <br></br>
+          <hr></hr>
+          <br></br>
           <div v-for="key in displayKeys" :key="key" style="margin-bottom: 0.5em;">
             <strong>{{ keyNames[key] || key }}: </strong>
             <span v-if="key !== 'RELEVANT LINKS - FACT SHEETS'">
@@ -74,6 +83,9 @@
         </div>
       </template>
     </USlideover>
+    <div class="credits">
+      This research was funded through the Vermont Agency of Transportation’s Mobility and Transportation Innovations Grant.
+    </div>
   </div>
 </template>
 
@@ -87,9 +99,7 @@ const slideoverOpen = ref(false);
 
 const displayKeys = [
   "CITY",
-  "LOCATION OF PROJECT",
   "YEAR COMPLETED",
-  "DESCRIPTION (sidewalk, bike lane, length, etc)",
   "TOTAL COST (where available)",
   "PROJECT AGENCY OR INVOLVED GROUPS (where available)",
   "RELEVANT LINKS - FACT SHEETS"
@@ -97,8 +107,6 @@ const displayKeys = [
 
 const keyNames = {
   "CITY": "City",
-  "LOCATION OF PROJECT": "Location of Project",
-  "DESCRIPTION (sidewalk, bike lane, length, etc)": "Description",
   "YEAR COMPLETED": "Year Completed",
   "TOTAL COST (where available)": "Total Cost",
   "PROJECT AGENCY OR INVOLVED GROUPS (where available)": "Project Agency or Involved Groups",
