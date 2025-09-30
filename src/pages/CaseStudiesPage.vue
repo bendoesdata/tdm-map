@@ -10,7 +10,6 @@
       <img src="https://via.placeholder.com/400" class="img-placeholder" alt="Milton Sidewalks" style="max-width: 400px; margin-left: 20px;" />
     </div>
     <hr></hr>
-    <h3>South Burlington: Penny for Paths</h3>
     <div class="flex-box">
       <div>
         <h3>South Burlington: Penny for Paths</h3>
@@ -65,6 +64,10 @@ const caseStudies = [
 </script>
 
 <style scoped>
+
+p, h2, h3 {
+  padding: 12px
+}
 .case-studies-page {
   max-width: 1000px;
 }
@@ -84,7 +87,7 @@ hr {
 
 @media (max-width: 800px) {
   .flex-box {
-    flex-direction: column;
+    flex-direction: column-reverse;
   }
   .flex-box img {
     margin-left: 0 !important;

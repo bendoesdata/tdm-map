@@ -7,14 +7,6 @@
           <br>
           <p>Some of these projects started at the state level, others were initiated by a handful of community members. This survey likely does not capture every change to Vermont infrastructure that supports bikes and pedestrians since 2019. However, it does provide a sample of the types of projects that have been realized across Vermont communities. Explore the map to see details, funding sources, and agencies and groups involved with each specific project.</p>
           <br>
-          <p>Explore TDM projects across Vermont. Click on map markers for project details.</p>
-          <a
-            href="https://vtrans.vermont.gov/planning/tdm"
-            target="_blank"
-            rel="noopener"
-          >
-            Learn more about TDM
-          </a>
         </div>
       </div>
       <div style="width: 70%;">

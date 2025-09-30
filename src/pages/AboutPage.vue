@@ -23,6 +23,10 @@
 </template>
 
 <style scoped>
+
+p, h2, h3 {
+  padding: 12px
+}
 .about-page {
     max-width: 700px;
     margin: 2em auto;

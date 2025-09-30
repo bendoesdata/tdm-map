@@ -1,20 +1,20 @@
 <template>
   <div class="project-map-container">
-    <div style="display: inline; margin-right: 10px; border-right: solid 2px #bbb; padding-right: 30px;">
+    <div class="checkbox-row">
+      <label style="margin-left:1em;">
+        <input type="checkbox" v-model="showTransitLayer" @change="toggleTransitLayer" />
+        Show Public Transit Layer
+      </label>
+      <label style="margin-left:1em;">
+        <input type="checkbox" v-model="showPopChoropleth" @change="togglePopChoropleth" />
+        Show Population Layer
+      </label>
+    </div>
     <label for="county-select">Zoom to County:</label>
     <select id="county-select" v-model="selectedCounty" @change="zoomToCounty">
       <option value="">All Counties</option>
       <option v-for="county in counties" :key="county" :value="county">{{ county }}</option>
     </select>
-    </div>
-    <label style="margin-left:1em;">
-      <input type="checkbox" v-model="showTransitLayer" @change="toggleTransitLayer" />
-      Show Public Transit Layer
-    </label>
-    <label style="margin-left:1em;">
-      <input type="checkbox" v-model="showPopChoropleth" @change="togglePopChoropleth" />
-      Show Population Choropleth
-    </label>
     <div id="map" style="height: 600px; margin-top: 1em; position: relative;"></div>
     <div class="legend-overlay">
       <h3>Project Type Legend</h3>
@@ -376,6 +376,23 @@ div {
     left: 20px;
     max-width: none;
     font-size: 0.8em;
+  }
+}
+
+.checkbox-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 1em;
+}
+@media (max-width: 600px) {
+  .checkbox-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5em;
+  }
+  .checkbox-row label {
+    margin-left: 0 !important;
   }
 }
 
