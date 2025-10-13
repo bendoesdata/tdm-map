@@ -87,11 +87,12 @@ nav a {
   color: #00477d;
   border-bottom: 2px solid transparent;
   transition: border-color 0.2s;
+  white-space: nowrap;
 }
 nav a.router-link-active {
   border-bottom: 2px solid #00477d;
 }
-@media (max-width: 600px) {
+@media (max-width: 900px) {
   .header-bar {
     flex-direction: column-reverse;
     align-items: center;
@@ -104,6 +105,13 @@ nav a.router-link-active {
   h1 {
     text-align: center;
     font-size: 1.3em;
+  }
+}
+@media (min-width: 900px) {
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 1em;
   }
 }
 </style>
