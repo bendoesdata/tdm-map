@@ -9,12 +9,13 @@
         <input type="checkbox" v-model="showPopChoropleth" @change="togglePopChoropleth" />
         Show Population Layer
       </label>
-    </div>
-    <label for="county-select">Zoom to County:</label>
+      <label for="county-select" id="county-zoom">Zoom to County:</label>
     <select id="county-select" v-model="selectedCounty" @change="zoomToCounty">
       <option value="">All Counties</option>
       <option v-for="county in counties" :key="county" :value="county">{{ county }}</option>
     </select>
+    </div>
+    
     <div id="map" style="height: 600px; margin-top: 1em; position: relative;"></div>
     <div class="legend-overlay">
       <h3>Project Type Legend</h3>
@@ -223,8 +224,8 @@ const projectNumberToName = {
 // dict to translate project types to colors
 const projectColors = {
     'primary pedestrian': '#587B7F', 
-    'primary bike': '#E2C044',       
-    'mixed use': '#C4B7CB',          
+    'primary bike': '#C4B7CB',       
+    'mixed use': '#E2C044',          
     'primary other transit': '#393E41'
 };
 
@@ -339,9 +340,14 @@ onUnmounted(() => {
     font-size: 1em
 }
 
+#county-zoom {
+  margin-left: 1em;
+ 
+}
+
 .legend-overlay {
   position: absolute;
-  top: 80px;
+  top: 25%;
   right: 40px;
   z-index: 1000;
   background: rgba(249, 249, 249, 0.95);

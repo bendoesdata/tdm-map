@@ -53,7 +53,7 @@ const caseStudies = [
 <template id="app">
   <UApp>
     <div class="header-bar">
-      <h1>Transit Demand Management</h1>
+      <h1 style="padding: 8px; font-size: 1.8rem">Pedestrian, bike and non-car infrastructure projects built in Vermont, 2019-2025</h1>
       <nav>
         <router-link to="/">Home</router-link>
         |
@@ -84,7 +84,12 @@ nav {
 nav a {
   margin: 0 0.5em;
   text-decoration: none;
-  color: #065d00;
+  color: #00477d;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+nav a.router-link-active {
+  border-bottom: 2px solid #00477d;
 }
 @media (max-width: 600px) {
   .header-bar {
