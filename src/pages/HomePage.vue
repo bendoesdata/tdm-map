@@ -31,6 +31,9 @@
           <span v-if="selectedProject['photo credit']" class="caption">{{ 'Photo courtesty of ' + (selectedProject['photo credit'] ? selectedProject['photo credit'] : '') }}</span>
         </div>
         <br></br>
+        <div>
+
+        </div>
         <div v-if="selectedProject">
           <div>
             <h3>{{ selectedProject['LOCATION OF PROJECT'] ? selectedProject['LOCATION OF PROJECT'] : 'Not available' }}</h3>
@@ -41,8 +44,23 @@
           <br></br>
           <div v-for="key in displayKeys" :key="key" style="margin-bottom: 0.5em;">
             <strong>{{ keyNames[key] || key }}: </strong>
-            <span v-if="key !== 'RELEVANT LINKS - FACT SHEETS'">
-              {{ selectedProject[key] ? selectedProject[key] : 'Not available' }}
+            <div style="display: inline-block" v-if="key === 'PROJECT ELEMENTS (CODE)'">
+              <template v-if="selectedProject[key]">
+                  <span v-for="element in selectedProject[key].split(';')" :key="element" class="pill-box" :style="{ backgroundColor: elementColors[element.trim().toLowerCase()] || '#000' }">
+                    {{ element.trim() }}
+                  </span>
+              </template>
+              <template v-else>
+                Not available
+              </template>
+            </div>
+            <span v-else-if="key !== 'RELEVANT LINKS - FACT SHEETS'">
+              <template v-if="key === 'PROJECT FUNDING (CODE)'">
+                {{ fundingDisplay[selectedProject[key]] || selectedProject[key] || 'Not available' }}
+              </template>
+              <template v-else>
+                {{ selectedProject[key] ? selectedProject[key] : 'Not available' }}
+              </template>
             </span>
             <span v-else>
               <template v-if="selectedProject[key]">
@@ -89,8 +107,29 @@ import { ref } from 'vue';
 const selectedProject = ref(null);
 const slideoverOpen = ref(false);
 
+const elementColors = {
+  "bike lane": "#C4B6CB",
+  "sidewalk": "#577B7F",
+  "crosswalk": "#577B7F",
+  "multi-use": "#e5b402",
+  "bike share": "#C4B6CB",
+  "beacon": "#577B7F",
+  "rec trail": "#e5b402",
+  "transit": "#393E41",
+  "repaving": "#393E41"
+};
+
+const fundingDisplay = {
+  DTF: "Downtown Transportation Fund",
+  MTI: "Mobility & Transportation Innovations",
+  BP: "Bike & Pedestrian Grant Program",
+  TAP: "Transportation Alternatives Program"
+}
+
 const displayKeys = [
   "CITY",
+  "PROJECT ELEMENTS (CODE)",
+  "PROJECT FUNDING (CODE)",
   "YEAR COMPLETED",
   "TOTAL COST (where available)",
   "PROJECT AGENCY OR INVOLVED GROUPS (where available)",
@@ -99,6 +138,8 @@ const displayKeys = [
 
 const keyNames = {
   "CITY": "City",
+  "PROJECT ELEMENTS (CODE)": "Project Elements",
+  "PROJECT FUNDING (CODE)": "Project Funding",
   "YEAR COMPLETED": "Year Completed",
   "TOTAL COST (where available)": "Total Cost",
   "PROJECT AGENCY OR INVOLVED GROUPS (where available)": "Project Agency or Involved Groups",

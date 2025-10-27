@@ -145,3 +145,15 @@ select {
         flex: 1 1 100%;
     }
 }
+
+.pill-box {
+    display: inline-block;
+    background-color: #eee;
+    color: #fff;
+    font-weight: 600;
+    padding: 0.25em 0.5em;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    margin-right: 0.5em;
+    margin-bottom: 0.5em;
+}

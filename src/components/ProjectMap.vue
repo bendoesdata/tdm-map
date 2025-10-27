@@ -14,6 +14,14 @@
       <option value="">All Counties</option>
       <option v-for="county in counties" :key="county" :value="county">{{ county }}</option>
     </select>
+    <select id="project-elements" v-model="selectedProjectElement" @change="filterByProjectElement">
+      <option value="">All Project Types</option>
+      <option v-for="element in projectElements" :key="element" :value="element">{{ element }}</option>
+    </select>
+    <select id="project-funding" v-model="selectedProjectFunding" @change="filterByProjectFunding">
+      <option value="">All Funding Sources</option>
+      <option v-for="funding in projectFunding" :key="funding" :value="funding">{{ projectFundingDisplay[funding] }}</option>
+    </select>
     </div>
     
     <div id="map" style="height: 600px; margin-top: 1em; position: relative;"></div>
@@ -141,6 +149,17 @@ const map = ref(null);
 const markers = ref([]);
 const counties = ref([]);
 const selectedCounty = ref('');
+const selectedProjectElement = ref('');
+const selectedProjectFunding = ref('');
+const projectElements = ref(['Sidewalk', 'Repaving', 'Transit', 'Beacon', 'Bike Lane', 'Multi-use', 'Rec trail', 'Bike share']);
+const projectFunding = ref(['DTF', 'MTI', 'BP', 'TAP']);
+
+const projectFundingDisplay = {
+  DTF: "Downtown Transportation Fund",
+  MTI: "Mobility & Transportation Innovations",
+  BP: "Bike & Pedestrian Grant Program",
+  TAP: "Transportation Alternatives Program"
+};
 
 
 function toggleTransitLayer() {
@@ -245,6 +264,128 @@ function zoomToCounty() {
   }
   const bounds = getCountyBounds(selectedCounty.value);
   if (bounds) map.value.flyToBounds(bounds, { maxZoom: 12, animate: true, duration: 1.5 });
+}
+
+function filterByProjectElement() {
+  if (!map.value) return;
+  
+  // Remove all existing markers from map
+  markers.value.forEach(marker => {
+    map.value.removeLayer(marker);
+  });
+  
+  // Filter projects based on selected project element
+  let filteredProjects = projects.value;
+  
+  if (selectedProjectElement.value) {
+    filteredProjects = projects.value.filter(project => {
+      const projectElements = project['PROJECT ELEMENTS (CODE)'];
+      // Split by semicolon and check if any element matches (after trimming whitespace)
+      if (!projectElements) return false;
+      const elements = projectElements.split(';').map(e => e.trim());
+
+      // lowercase elements for comparison
+      const lowercasedElements = elements.map(e => e.toLowerCase());
+
+      return lowercasedElements.includes(selectedProjectElement.value.toLowerCase());
+    });
+  }
+  console.log('Filtered projects count:', filteredProjects);
+  
+  // Add filtered markers back to map
+  markers.value = filteredProjects.map(project => {
+    const markerIcon = L.divIcon({
+      className: 'custom-marker',
+      html: `<div style="background:${project.COLOR};width:16px;height:16px;border-radius:50%;border:2px solid #fff;"></div>`,
+      iconSize: [20, 20],
+      iconAnchor: [10, 10],
+    });
+
+    const marker = L.marker([parseFloat(project.LAT), parseFloat(project.LON)], {
+      title: project['LOCATION OF PROJECT FOR TEXT'] || project['ADDRESS OF PROJECT TO MAP'],
+      icon: markerIcon,
+    }).addTo(map.value);
+
+    marker.bindPopup(`
+      <b>Type:</b> ${projectNumberToName[project['CODE FOR COLOR']]}<br>
+      <em>${project['DESCRIPTION (sidewalk, bike lane, length, etc)']}</em><br>
+      <b>Completed in:</b> ${project['YEAR COMPLETED'] || 'N/A'}<br>
+    `);
+
+    marker.on('mouseover', function () {
+      marker.openPopup();
+    });
+    marker.on('mouseout', function () {
+      marker.closePopup();
+    });
+
+    marker.on('click', () => {
+      emit('marker-click', project);
+    });
+
+    return marker;
+  });
+}
+
+function filterByProjectFunding() {
+  if (!map.value) return;
+  
+  // Remove all existing markers from map
+  markers.value.forEach(marker => {
+    map.value.removeLayer(marker);
+  });
+  
+  // Filter projects based on selected project funding
+  let filteredProjects = projects.value;
+  
+  if (selectedProjectFunding.value) {
+    filteredProjects = projects.value.filter(project => {
+      const projectFundingCode = project['PROJECT FUNDING (CODE)'];
+      // Split by semicolon and check if any funding source matches (after trimming whitespace)
+      if (!projectFundingCode) return false;
+      const fundingSources = projectFundingCode.split(';').map(f => f.trim());
+
+      // lowercase funding sources for comparison
+      const lowercasedFunding = fundingSources.map(f => f.toLowerCase());
+
+      return lowercasedFunding.includes(selectedProjectFunding.value.toLowerCase());
+    });
+  }
+  console.log('Filtered projects by funding count:', filteredProjects.length);
+  
+  // Add filtered markers back to map
+  markers.value = filteredProjects.map(project => {
+    const markerIcon = L.divIcon({
+      className: 'custom-marker',
+      html: `<div style="background:${project.COLOR};width:16px;height:16px;border-radius:50%;border:2px solid #fff;"></div>`,
+      iconSize: [20, 20],
+      iconAnchor: [10, 10],
+    });
+
+    const marker = L.marker([parseFloat(project.LAT), parseFloat(project.LON)], {
+      title: project['LOCATION OF PROJECT FOR TEXT'] || project['ADDRESS OF PROJECT TO MAP'],
+      icon: markerIcon,
+    }).addTo(map.value);
+
+    marker.bindPopup(`
+      <b>Type:</b> ${projectNumberToName[project['CODE FOR COLOR']]}<br>
+      <em>${project['DESCRIPTION (sidewalk, bike lane, length, etc)']}</em><br>
+      <b>Completed in:</b> ${project['YEAR COMPLETED'] || 'N/A'}<br>
+    `);
+
+    marker.on('mouseover', function () {
+      marker.openPopup();
+    });
+    marker.on('mouseout', function () {
+      marker.closePopup();
+    });
+
+    marker.on('click', () => {
+      emit('marker-click', project);
+    });
+
+    return marker;
+  });
 }
 
 onMounted(() => {
