@@ -266,7 +266,7 @@ function zoomToCounty() {
   if (bounds) map.value.flyToBounds(bounds, { maxZoom: 12, animate: true, duration: 1.5 });
 }
 
-function filterByProjectElement() {
+function applyFilters() {
   if (!map.value) return;
   
   // Remove all existing markers from map
@@ -274,84 +274,32 @@ function filterByProjectElement() {
     map.value.removeLayer(marker);
   });
   
-  // Filter projects based on selected project element
+  // Start with all projects
   let filteredProjects = projects.value;
   
+  // Apply project element filter if selected
   if (selectedProjectElement.value) {
-    filteredProjects = projects.value.filter(project => {
+    filteredProjects = filteredProjects.filter(project => {
       const projectElements = project['PROJECT ELEMENTS (CODE)'];
-      // Split by semicolon and check if any element matches (after trimming whitespace)
       if (!projectElements) return false;
       const elements = projectElements.split(';').map(e => e.trim());
-
-      // lowercase elements for comparison
       const lowercasedElements = elements.map(e => e.toLowerCase());
-
       return lowercasedElements.includes(selectedProjectElement.value.toLowerCase());
     });
   }
-  console.log('Filtered projects count:', filteredProjects);
   
-  // Add filtered markers back to map
-  markers.value = filteredProjects.map(project => {
-    const markerIcon = L.divIcon({
-      className: 'custom-marker',
-      html: `<div style="background:${project.COLOR};width:16px;height:16px;border-radius:50%;border:2px solid #fff;"></div>`,
-      iconSize: [20, 20],
-      iconAnchor: [10, 10],
-    });
-
-    const marker = L.marker([parseFloat(project.LAT), parseFloat(project.LON)], {
-      title: project['LOCATION OF PROJECT FOR TEXT'] || project['ADDRESS OF PROJECT TO MAP'],
-      icon: markerIcon,
-    }).addTo(map.value);
-
-    marker.bindPopup(`
-      <b>Type:</b> ${projectNumberToName[project['CODE FOR COLOR']]}<br>
-      <em>${project['DESCRIPTION (sidewalk, bike lane, length, etc)']}</em><br>
-      <b>Completed in:</b> ${project['YEAR COMPLETED'] || 'N/A'}<br>
-    `);
-
-    marker.on('mouseover', function () {
-      marker.openPopup();
-    });
-    marker.on('mouseout', function () {
-      marker.closePopup();
-    });
-
-    marker.on('click', () => {
-      emit('marker-click', project);
-    });
-
-    return marker;
-  });
-}
-
-function filterByProjectFunding() {
-  if (!map.value) return;
-  
-  // Remove all existing markers from map
-  markers.value.forEach(marker => {
-    map.value.removeLayer(marker);
-  });
-  
-  // Filter projects based on selected project funding
-  let filteredProjects = projects.value;
-  
+  // Apply project funding filter if selected
   if (selectedProjectFunding.value) {
-    filteredProjects = projects.value.filter(project => {
+    filteredProjects = filteredProjects.filter(project => {
       const projectFundingCode = project['PROJECT FUNDING (CODE)'];
-      // Split by semicolon and check if any funding source matches (after trimming whitespace)
       if (!projectFundingCode) return false;
       const fundingSources = projectFundingCode.split(';').map(f => f.trim());
-
-      // lowercase funding sources for comparison
       const lowercasedFunding = fundingSources.map(f => f.toLowerCase());
-
       return lowercasedFunding.includes(selectedProjectFunding.value.toLowerCase());
     });
   }
-  console.log('Filtered projects by funding count:', filteredProjects.length);
+  
+  console.log('Filtered projects count:', filteredProjects.length);
   
   // Add filtered markers back to map
   markers.value = filteredProjects.map(project => {
@@ -386,6 +334,17 @@ function filterByProjectFunding() {
 
     return marker;
   });
+  
+  // Force map to invalidate size and redraw
+  map.value.invalidateSize();
+}
+
+function filterByProjectElement() {
+  applyFilters();
+}
+
+function filterByProjectFunding() {
+  applyFilters();
 }
 
 onMounted(() => {
@@ -474,7 +433,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-#county-select {
+select {
   margin-bottom: 1em;
   margin-left: 0.5em;
     padding: 0.5em; 
