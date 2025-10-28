@@ -19,6 +19,10 @@
     <p>
         Because projects are not tracked centrally, and many are small in scope, this likely does not capture every TDM infrastructure project completed in the state over the last five years. However, it does provide a representative sample of initiatives that have been realized across Vermont communities.
     </p>
+    <p>Read the complete report on this research project <a href="/finalMTI TDM report.pdf">here</a>.</p>
+    <p>View the complete dataset for this project <a href="https://docs.google.com/spreadsheets/d/1Ro7eQo9Xl8IB6T8mJgjKCaK5xmxxs-A_IsxksHcfQ58/edit?usp=sharing">here</a>.</p>
+    <p>For questions, corrections, or updates to data, please contact researcher Elizabeth Hewitt at lizmhewitt@gmail.com.
+</p>
   </div>
 </template>
 
@@ -26,6 +30,10 @@
 
 p, h2, h3 {
   padding: 12px
+}
+a {
+    color: #00477d;
+    text-decoration: underline;
 }
 .about-page {
     max-width: 700px;
