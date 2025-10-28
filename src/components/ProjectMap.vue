@@ -1,27 +1,29 @@
 <template>
   <div class="project-map-container">
-    <div class="checkbox-row">
-      <label style="margin-left:1em;">
-        <input type="checkbox" v-model="showTransitLayer" @change="toggleTransitLayer" />
-        Show Public Transit Layer
-      </label>
-      <label style="margin-left:1em;">
-        <input type="checkbox" v-model="showPopChoropleth" @change="togglePopChoropleth" />
-        Show Population Layer
-      </label>
-      <label for="county-select" id="county-zoom">Zoom to County:</label>
-    <select id="county-select" v-model="selectedCounty" @change="zoomToCounty">
-      <option value="">All Counties</option>
-      <option v-for="county in counties" :key="county" :value="county">{{ county }}</option>
-    </select>
-    <select id="project-elements" v-model="selectedProjectElement" @change="filterByProjectElement">
-      <option value="">All Project Types</option>
-      <option v-for="element in projectElements" :key="element" :value="element">{{ element }}</option>
-    </select>
-    <select id="project-funding" v-model="selectedProjectFunding" @change="filterByProjectFunding">
-      <option value="">All Funding Sources</option>
-      <option v-for="funding in projectFunding" :key="funding" :value="funding">{{ projectFundingDisplay[funding] }}</option>
-    </select>
+    <div class="shadow-container">
+      <h3>Map Filters</h3>
+      <div class="checkbox-row">
+        <select style="margin-left: -2px" id="county-select" v-model="selectedCounty" @change="zoomToCounty">
+        <option value="">All Counties</option>
+        <option v-for="county in counties" :key="county" :value="county">{{ county }}</option>
+      </select>
+      <select id="project-elements" v-model="selectedProjectElement" @change="filterByProjectElement">
+        <option value="">All Project Types</option>
+        <option v-for="element in projectElements" :key="element" :value="element">{{ element }}</option>
+      </select>
+      <select id="project-funding" v-model="selectedProjectFunding" @change="filterByProjectFunding">
+        <option value="">All Funding Sources</option>
+        <option v-for="funding in projectFunding" :key="funding" :value="funding">{{ projectFundingDisplay[funding] }}</option>
+      </select>
+        <label style="margin-left:1em;">
+          <input type="checkbox" v-model="showTransitLayer" @change="toggleTransitLayer" />
+          Show Public Transit Layer
+        </label>
+        <label style="margin-left:1em;">
+          <input type="checkbox" v-model="showPopChoropleth" @change="togglePopChoropleth" />
+          Show Population Layer
+        </label>
+      </div>
     </div>
     
     <div id="map" style="height: 600px; margin-top: 1em; position: relative;"></div>
@@ -492,6 +494,9 @@ div {
   margin-bottom: 1em;
 }
 @media (max-width: 600px) {
+  select {
+    margin-left: 0em
+  }
   .checkbox-row {
     flex-direction: column;
     align-items: flex-start;
@@ -508,6 +513,14 @@ input[type="checkbox"] {
   height: 16px;
   vertical-align: middle;
   margin-right: 0.25em;
+}
+
+.shadow-container {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 1em;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fdfdfd;
 }
  
 </style>
