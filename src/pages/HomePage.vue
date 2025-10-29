@@ -123,7 +123,14 @@ const fundingDisplay = {
   DTF: "Downtown Transportation Fund",
   MTI: "Mobility & Transportation Innovations",
   BP: "Bike & Pedestrian Grant Program",
-  TAP: "Transportation Alternatives Program"
+  TAP: "Transportation Alternatives Program",
+  "Better Connections": "Better Connections",
+  "AARP": "AARP",
+  "America Walks": "America Walks",
+  "Climate Catalyst": "Climate Catalyst",
+  "Library accessibility grant": "Library accessibility grant",
+  "Penny for Paths": "Penny for Paths",
+  "VOREC": "VOREC"
 }
 
 const displayKeys = [

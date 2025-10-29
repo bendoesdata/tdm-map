@@ -154,13 +154,20 @@ const selectedCounty = ref('');
 const selectedProjectElement = ref('');
 const selectedProjectFunding = ref('');
 const projectElements = ref(['Sidewalk', 'Repaving', 'Transit', 'Beacon', 'Bike Lane', 'Multi-use', 'Rec trail', 'Bike share']);
-const projectFunding = ref(['DTF', 'MTI', 'BP', 'TAP']);
+const projectFunding = ref(['DTF', 'MTI', 'BP', 'TAP', 'Better Connections', 'AARP', 'America Walks', 'Climate Catalyst', 'Library accessibility grant', 'Penny for Paths', 'VOREC']);
 
 const projectFundingDisplay = {
   DTF: "Downtown Transportation Fund",
   MTI: "Mobility & Transportation Innovations",
   BP: "Bike & Pedestrian Grant Program",
-  TAP: "Transportation Alternatives Program"
+  TAP: "Transportation Alternatives Program",
+  "Better Connections": "Better Connections",
+  "AARP": "AARP",
+  "America Walks": "America Walks",
+  "Climate Catalyst": "Climate Catalyst",
+  "Library accessibility grant": "Library accessibility grant",
+  "Penny for Paths": "Penny for Paths",
+  "VOREC": "VOREC"
 };
 
 
